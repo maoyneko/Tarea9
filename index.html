@@ -1,186 +1,309 @@
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Proyecto Final – BrannyCMS</title>
-    <!-- Tailwind CSS via CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body class="bg-gray-100 min-h-screen flex flex-col font-sans">
-    <!-- Encabezado principal con logo y metadatos académicos -->
-    <header class="bg-indigo-700 text-white shadow-lg">
-      <div
-        class="container mx-auto px-4 py-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between"
-      >
-        <!-- Logo + título -->
-        <div class="flex items-center gap-3">
-          <img
-            src="logo_empresa.png"
-            alt="Logo de la empresa"
-            class="h-12 w-12 rounded-full border border-white shadow"
-          />
-          <h1 class="text-2xl font-semibold leading-tight">
-            BrannyCMS
-            <span class="block text-sm font-light"
-              >Mini Gestor de Contenido</span
-            >
-          </h1>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrannyCMS • Proyecto Final UAPA</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col font-sans">
+  <!-- ========= LOGIN MODAL ========= -->
+  <div id="loginModal" class="fixed inset-0 flex items-center justify-center bg-black/50 z-50 hidden">
+    <div class="bg-white rounded-xl shadow-lg w-80 p-6">
+      <h2 class="text-lg font-bold text-center mb-4">Iniciar sesión</h2>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="block text-sm mb-1" for="loginUser">Usuario</label>
+          <input id="loginUser" type="text" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
         </div>
-        <!-- Datos del estudiante -->
-        <div class="text-right text-xs leading-tight md:text-left">
-          <p>Estudiante: <strong>Branny Smith Severino</strong></p>
-          <p>Matrícula: <strong>202003617</strong></p>
+        <div>
+          <label class="block text-sm mb-1" for="loginPass">Contraseña</label>
+          <input id="loginPass" type="password" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500">
         </div>
-        <!-- Datos del profesor y asignatura -->
-        <div class="text-right text-xs leading-tight">
-          <p>Profesor: <strong>Gregorio De La Rosa</strong></p>
-          <p>
-            Asignatura:
-            <strong>Gestión del Conocimiento y la Toma de Decisiones</strong>
-          </p>
-        </div>
-      </div>
-      <!-- Barra de utilidades -->
-      <nav class="bg-indigo-800 text-center text-xs py-1">
-        <button id="clearAll" class="underline hover:text-gray-200">
-          Borrar todo el contenido
-        </button>
-      </nav>
-    </header>
+        <button class="bg-indigo-600 text-white w-full py-2 rounded-lg hover:bg-indigo-700">Entrar</button>
+      </form>
+      <p class="text-xs text-center text-gray-500 mt-4">Admin demo: <code>admin_demo / 1234</code></p>
+    </div>
+  </div>
 
-    <!-- Contenido principal -->
-    <main class="flex-1 container mx-auto px-4 py-8 grid md:grid-cols-5 gap-8">
-      <!-- Formulario de creación -->
-      <section class="bg-white rounded-2xl shadow px-6 py-8 md:col-span-2">
+  <!-- ========= HEADER ========= -->
+  <header class="bg-indigo-700 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-3 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <!-- Logo y nombre del CMS -->
+      <div class="flex items-center gap-3">
+        <img src="logo_empresa.png" alt="Logo" class="h-12 w-12 rounded-full border border-white shadow">
+        <h1 class="text-2xl font-semibold leading-tight">BrannyCMS
+          <span class="block text-sm font-light">Proyecto Final</span>
+        </h1>
+      </div>
+      <!-- Datos alumno -->
+      <div class="text-right text-xs leading-tight md:text-left">
+        <p>Estudiante: <strong>Branny Smith Severino</strong></p>
+        <p>Matrícula: <strong>202003617</strong></p>
+      </div>
+      <!-- Datos profesor / asignatura -->
+      <div class="text-right text-xs leading-tight">
+        <p>Profesor: <strong>Gregorio De La Rosa</strong></p>
+        <p>Asignatura: <strong>Gestión del Conocimiento y la Toma de Decisiones</strong></p>
+      </div>
+    </div>
+    <nav class="bg-indigo-800 text-center text-xs py-1 flex items-center justify-center gap-4">
+      <span id="userInfo" class="text-gray-200"></span>
+      <button id="logoutBtn" class="underline hover:text-white hidden">Cerrar sesión</button>
+      <button id="clearAll" class="underline hover:text-white">Borrar todo el contenido</button>
+    </nav>
+  </header>
+
+  <!-- ========= MAIN ========= -->
+  <main class="flex-1 container mx-auto px-4 py-8 space-y-10">
+
+    <!-- ==== CREA POST & LISTA ==== -->
+    <div class="grid md:grid-cols-5 gap-8">
+      <!-- Formulario crear post -->
+      <section id="postSection" class="bg-white rounded-2xl shadow px-6 py-8 md:col-span-2 hidden">
         <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="1.5"
-              d="M12 4v16m8-8H4"
-            />
-          </svg>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" /></svg>
           Nuevo artículo
         </h2>
         <form id="postForm" class="space-y-4">
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 mb-1"
-              for="title"
-              >Título</label
-            >
-            <input
-              type="text"
-              id="title"
-              required
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="title">Título</label>
+            <input type="text" id="title" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
           </div>
           <div>
-            <label
-              class="block text-sm font-medium text-gray-700 mb-1"
-              for="content"
-              >Contenido</label
-            >
-            <textarea
-              id="content"
-              rows="5"
-              required
-              class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            ></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="category">Categoría</label>
+            <select id="category" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500"></select>
           </div>
-          <button
-            type="submit"
-            class="bg-indigo-600 text-white px-4 py-2 rounded-lg w-full hover:bg-indigo-700 transition"
-          >
-            Publicar
-          </button>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="content">Contenido</label>
+            <textarea id="content" rows="5" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+          </div>
+          <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg w-full hover:bg-indigo-700 transition">Publicar</button>
         </form>
       </section>
 
-      <!-- Lista de artículos publicados -->
+      <!-- Lista de artículos -->
       <section class="bg-white rounded-2xl shadow px-6 py-8 md:col-span-3">
-        <h2 class="text-xl font-bold mb-4">Artículos publicados</h2>
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold">Artículos publicados</h2>
+          <select id="filterCategory" class="px-3 py-1 border rounded-lg text-sm"></select>
+        </div>
         <div id="postsContainer" class="space-y-4"></div>
       </section>
-    </main>
+    </div>
 
-    <!-- Pie de página -->
-    <footer class="bg-gray-200 text-gray-600 text-sm text-center py-4">
-      Proyecto final CMS • UAPA 2025 &copy; Branny S.
-    </footer>
+    <!-- ==== GESTIÓN DE USUARIOS (ADMIN) ==== -->
+    <section id="userMgmt" class="bg-white rounded-2xl shadow px-6 py-8 hidden">
+      <h2 class="text-xl font-bold mb-4">Gestión de usuarios</h2>
+      <form id="newUserForm" class="flex flex-col md:flex-row gap-4 mb-6">
+        <input id="newUsername" type="text" placeholder="Usuario" required class="flex-1 px-3 py-2 border rounded-lg">
+        <input id="newPassword" type="password" placeholder="Contraseña" required class="flex-1 px-3 py-2 border rounded-lg">
+        <select id="newRole" class="px-3 py-2 border rounded-lg">
+          <option value="autor">Autor</option>
+          <option value="editor">Editor</option>
+          <option value="suscriptor">Suscriptor</option>
+        </select>
+        <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">Crear</button>
+      </form>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-left border-b">
+            <th class="py-2">Usuario</th>
+            <th>Rol</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </section>
+  </main>
 
-    <!-- Lógica de la aplicación -->
-    <script>
-      const form = document.getElementById("postForm");
-      const postsContainer = document.getElementById("postsContainer");
-      const clearAllBtn = document.getElementById("clearAll");
+  <!-- ========= FOOTER ========= -->
+  <footer class="bg-gray-200 text-gray-600 text-sm text-center py-4">Proyecto final CMS • UAPA 2025 &copy; Branny S.</footer>
 
-      // Recuperar artículos guardados
-      let posts = JSON.parse(localStorage.getItem("brannycms_posts") || "[]");
+  <!-- ========= SCRIPT ========= -->
+  <script>
+    // ====== MODELOS EN localStorage ======
+    const LS_KEYS = {
+      users: 'brannycms_users',
+      posts: 'brannycms_posts',
+      cats:  'brannycms_categories',
+      current: 'brannycms_current_user'
+    };
 
-      const savePosts = () => {
-        localStorage.setItem("brannycms_posts", JSON.stringify(posts));
-      };
+    // ====== DATOS INICIALES ======
+    const defaultUsers = [
+      {user: 'admin_demo', pass: '1234', role: 'admin'}
+    ];
+    const defaultCategories = ['Noticias', 'Guías', 'Análisis'];
 
-      const renderPosts = () => {
-        postsContainer.innerHTML = "";
-        if (posts.length === 0) {
-          postsContainer.innerHTML =
-            '<p class="text-gray-400 text-sm">Aún no hay artículos.</p>';
-          return;
-        }
-        posts.forEach((post, idx) => {
-          const card = document.createElement("article");
-          card.className =
-            "border rounded-lg p-4 shadow group hover:shadow-lg transition";
-          card.innerHTML = `
-          <h3 class="font-semibold text-lg mb-2">${post.title}</h3>
+    // ====== UTILIDADES ======
+    const q = (sel) => document.querySelector(sel);
+
+    const save = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+    const load = (key, fallback) => JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+
+    let users      = load(LS_KEYS.users, defaultUsers);
+    let posts      = load(LS_KEYS.posts, []);
+    let categories = load(LS_KEYS.cats, defaultCategories);
+    let currentUser= load(LS_KEYS.current, null);
+
+    // ====== RENDER HEADER USER ======
+    const renderHeaderUser = () => {
+      const info = currentUser ? `${currentUser.user} • ${currentUser.role.toUpperCase()}` : 'No autenticado';
+      q('#userInfo').textContent = info;
+      q('#logoutBtn').classList.toggle('hidden', !currentUser);
+    };
+
+    // ====== LOGIN FLOW ======
+    const openLogin = () => q('#loginModal').classList.remove('hidden');
+    const closeLogin = () => q('#loginModal').classList.add('hidden');
+
+    const handleLogin = (e) => {
+      e.preventDefault();
+      const u = q('#loginUser').value.trim();
+      const p = q('#loginPass').value.trim();
+      const match = users.find(x => x.user === u && x.pass === p);
+      if (!match) return alert('Credenciales incorrectas');
+      currentUser = match;
+      save(LS_KEYS.current, currentUser);
+      closeLogin();
+      renderApp();
+    };
+
+    q('#loginForm').addEventListener('submit', handleLogin);
+
+    // ====== LOGOUT ======
+    q('#logoutBtn').addEventListener('click', () => {
+      currentUser = null;
+      localStorage.removeItem(LS_KEYS.current);
+      renderApp();
+      openLogin();
+    });
+
+    // ====== POSTS ======
+    const renderCategories = () => {
+      const catSel = q('#category');
+      const filterSel = q('#filterCategory');
+      catSel.innerHTML = categories.map(c => `<option>${c}</option>`).join('');
+      filterSel.innerHTML = '<option value="">Todas</option>' + categories.map(c => `<option>${c}</option>`).join('');
+    };
+
+    const renderPosts = () => {
+      const container = q('#postsContainer');
+      container.innerHTML = '';
+      const filter = q('#filterCategory').value;
+      const list = posts.filter(p => !filter || p.category === filter);
+      if (list.length === 0) {
+        container.innerHTML = '<p class="text-gray-400 text-sm">No hay artículos.</p>';
+        return;
+      }
+      list.forEach((post, idx) => {
+        const canDelete = ['admin', 'editor'].includes(currentUser.role);
+        const card = document.createElement('article');
+        card.className = 'border rounded-lg p-4 shadow group hover:shadow-lg transition';
+        card.innerHTML = `
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="font-semibold text-lg">${post.title}</h3>
+            <span class="text-xs bg-gray-200 px-2 py-0.5 rounded">${post.category}</span>
+          </div>
           <p class="text-gray-700 whitespace-pre-wrap">${post.content}</p>
-          <button data-idx="${idx}" class="mt-3 text-xs text-red-600 underline opacity-0 group-hover:opacity-100">Eliminar</button>
+          ${canDelete ? `<button data-idx="${idx}" class="mt-3 text-xs text-red-600 underline opacity-0 group-hover:opacity-100">Eliminar</button>` : ''}
         `;
-          postsContainer.appendChild(card);
-        });
-      };
-
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const title = document.getElementById("title").value.trim();
-        const content = document.getElementById("content").value.trim();
-        if (!title || !content) return;
-        posts.unshift({ title, content, created: Date.now() });
-        savePosts();
-        renderPosts();
-        form.reset();
+        container.appendChild(card);
       });
+    };
 
-      postsContainer.addEventListener("click", (e) => {
-        if (e.target.matches("button[data-idx]")) {
-          const idx = e.target.dataset.idx;
-          posts.splice(idx, 1);
-          savePosts();
-          renderPosts();
-        }
-      });
-
-      clearAllBtn.addEventListener("click", () => {
-        if (confirm("¿Borrar todos los artículos?")) {
-          posts = [];
-          savePosts();
-          renderPosts();
-        }
-      });
-
-      // Render inicial
+    q('#postForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = q('#title').value.trim();
+      const content = q('#content').value.trim();
+      const category = q('#category').value;
+      posts.unshift({title, content, category, author: currentUser.user, created: Date.now()});
+      save(LS_KEYS.posts, posts);
       renderPosts();
-    </script>
-  </body>
+      e.target.reset();
+    });
+
+    q('#postsContainer').addEventListener('click', (e) => {
+      if (e.target.matches('button[data-idx]')) {
+        const idx = e.target.dataset.idx;
+        posts.splice(idx, 1);
+        save(LS_KEYS.posts, posts);
+        renderPosts();
+      }
+    });
+
+    q('#filterCategory').addEventListener('change', renderPosts);
+
+    // ====== CLEAR ALL ======
+    q('#clearAll').addEventListener('click', () => {
+      if (!confirm('¿Borrar todos los artículos?')) return;
+      posts = [];
+      save(LS_KEYS.posts, posts);
+      renderPosts();
+    });
+
+    // ====== USER MANAGEMENT ======
+    const renderUsers = () => {
+      const tbody = q('#usersTable');
+      tbody.innerHTML = '';
+      users.forEach((u, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="py-2">${u.user}</td>
+          <td>${u.role}</td>
+          <td>
+            ${u.role !== 'admin' ? `<button data-idx="${i}" class="text-red-600 text-xs underline">Eliminar</button>` : ''}
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    };
+
+    q('#newUserForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const user = q('#newUsername').value.trim();
+      const pass = q('#newPassword').value.trim();
+      const role = q('#newRole').value;
+      if (users.find(u => u.user === user)) return alert('Usuario ya existe');
+      users.push({user, pass, role});
+      save(LS_KEYS.users, users);
+      renderUsers();
+      e.target.reset();
+    });
+
+    q('#usersTable').addEventListener('click', (e) => {
+      if (e.target.matches('button[data-idx]')) {
+        const idx = e.target.dataset.idx;
+        users.splice(idx, 1);
+        save(LS_KEYS.users, users);
+        renderUsers();
+      }
+    });
+
+    // ====== APP RENDER ======
+    const renderApp = () => {
+      renderHeaderUser();
+
+      // Mostrar/ocultar secciones según rol
+      const logged = !!currentUser;
+      const canWrite = logged && ['admin', 'autor', 'editor'].includes(currentUser.role);
+      const isAdmin = logged && currentUser.role === 'admin';
+
+      q('#postSection').classList.toggle('hidden', !canWrite);
+      q('#userMgmt').classList.toggle('hidden', !isAdmin);
+
+      if (isAdmin) renderUsers();
+      renderCategories();
+      renderPosts();
+    };
+
+    // ====== INICIO ======
+    (function init() {
+      // Si no hay usuario actual, mostrar login
+      if (!currentUser) openLogin(); else renderApp();
+    })();
+  </script>
+</body>
 </html>
